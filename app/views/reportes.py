@@ -40,6 +40,8 @@ class ReportesView(BaseView):
         ventas_mensuales = (
             db.session.query(
                 func.date_format(Pedido.fecha, text("'%Y-%m'")).label("mes"),
+                func.sum(Pedido.total).label("total"),
+                func.count(Pedido.id).label("cantidad"),
             )
             .filter(Pedido.estado != EstadoPedido.CANCELADO)
             .group_by(func.date_format(Pedido.fecha, text("'%Y-%m'")))
