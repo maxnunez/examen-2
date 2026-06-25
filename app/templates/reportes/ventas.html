@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Reporte de Ventas - {{ config.APP_NAME }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header bg-gradient-header mb-4">
+  <div class="container py-4">
+    <h1 class="h2 mb-1"><i class="bi bi-graph-up me-2"></i>Reporte de Ventas</h1>
+    <p class="text-muted mb-0">Resumen de ingresos y pedidos</p>
+  </div>
+</div>
+
+<div class="page-wrapper">
+  <div class="container pb-4">
+    <div class="row g-3 mb-4 animate-stagger">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="fs-1 text-primary mb-2"><i class="bi bi-currency-dollar"></i></div>
+            <h3 class="fw-bold text-primary mb-0">Bs {{ "%.2f"|format(total_ingresos) }}</h3>
+            <small class="text-muted">Ingresos totales</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="fs-1 text-success mb-2"><i class="bi bi-receipt"></i></div>
+            <h3 class="fw-bold text-success mb-0">{{ total_pedidos }}</h3>
+            <small class="text-muted">Pedidos totales</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="fs-1 text-warning mb-2"><i class="bi bi-cart-check"></i></div>
+            <h3 class="fw-bold text-warning mb-0">Bs {{ "%.2f"|format(pedido_promedio) }}</h3>
+            <small class="text-muted">Ticket promedio</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-calendar-week me-2 text-primary"></i>Últimos 7 días
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 datatable">
+          <thead class="table-light">
+            <tr><th>Fecha</th><th>Pedidos</th><th>Total</th><th>Promedio</th></tr>
+          </thead>
+          <tbody>
+            {% for r in ventas_diarias %}
+            <tr>
+              <td class="fw-semibold">{{ r.dia }}</td>
+              <td>{{ r.cantidad }}</td>
+              <td class="fw-semibold text-success">Bs {{ "%.2f"|format(r.total) }}</td>
+              <td>Bs {{ "%.2f"|format(r.total / r.cantidad) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-4">Sin ventas en los últimos 7 días</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-calendar-month me-2 text-primary"></i>Ventas Mensuales
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 datatable">
+          <thead class="table-light">
+            <tr><th>Mes</th><th>Pedidos</th><th>Total</th><th>Promedio</th></tr>
+          </thead>
+          <tbody>
+            {% for r in ventas_mensuales %}
+            <tr>
+              <td class="fw-semibold">{{ r.mes }}</td>
+              <td>{{ r.cantidad }}</td>
+              <td class="fw-semibold text-success">Bs {{ "%.2f"|format(r.total) }}</td>
+              <td>Bs {{ "%.2f"|format(r.total / r.cantidad) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-4">Sin datos mensuales</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if recomendaciones_ventas %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-robot me-2 text-primary"></i>Recomendaciones Inteligentes
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for rec in recomendaciones_ventas %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 bg-{{ rec.tipo }} bg-opacity-10">
+              <div class="card-body">
+                <div class="d-flex align-items-start">
+                  <div class="flex-shrink-0">
+                    <i class="bi {{ rec.icono }} text-{{ rec.tipo }} fs-3"></i>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <h6 class="fw-semibold mb-1">{{ rec.titulo }}</h6>
+                    <p class="text-muted small mb-0">{{ rec.texto }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>$('.datatable').DataTable({pageLength:25, language:{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'}});</script>
+{% endblock %}

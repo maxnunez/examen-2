@@ -31,6 +31,10 @@ def create_app(config_name: str = "default") -> Flask:
     def inject_now():
         return {"now": datetime.utcnow}
 
+    @app.context_processor
+    def inject_appbuilder():
+        return {"appbuilder": appbuilder}
+
     with app.app_context():
         appbuilder.init_app(app, db.session)
         register_views()
