@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, text
 from flask_appbuilder import BaseView, expose, has_access
 
 from app import appbuilder, db
@@ -37,14 +37,12 @@ class ReportesView(BaseView):
             .all()
         )
 
-        ventas_mensuales = (
+            ventas_mensuales = (
             db.session.query(
-                func.date_format(Pedido.fecha, "%%Y-%%m").label("mes"),
-                func.sum(Pedido.total).label("total"),
-                func.count(Pedido.id).label("cantidad"),
+                func.date_format(Pedido.fecha, text("'%Y-%m'")).label("mes"),
             )
             .filter(Pedido.estado != EstadoPedido.CANCELADO)
-            .group_by(func.date_format(Pedido.fecha, "%%Y-%%m"))
+            .group_by(func.date_format(Pedido.fecha, text("'%Y-%m'")))
             .order_by(desc("mes"))
             .limit(12)
             .all()
