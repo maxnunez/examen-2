@@ -18,7 +18,7 @@ del restaurante, analizando patrones en ventas, platos y clientes.
 # Configuración de Groq
 # ---------------------------------------------------------------------------
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-8b-8192")  # modelos válidos: llama3-8b-8192, llama3-70b-8192, llama-3.3-70b-versatile, mixtral-8x7b-32768
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")  # producción: llama-3.1-8b-instant, llama-3.3-70b-versatile, openai/gpt-oss-120b
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
