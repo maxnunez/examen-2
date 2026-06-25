@@ -202,6 +202,34 @@ class GraficosView(BaseView):
             colores=bg,
         )
 
+    @expose("/clientes/")
+    @has_access
+    def clientes_frecuentes(self):
+        data = (
+            db.session.query(
+                Cliente.nombre,
+                Cliente.apellido,
+                func.count(Pedido.id).label("total_pedidos"),
+                func.sum(Pedido.total).label("gasto_total"),
+            )
+            .join(Pedido, Pedido.cliente_id == Cliente.id)
+            .group_by(Cliente.id)
+            .order_by(desc("total_pedidos"))
+            .limit(10)
+            .all()
+        )
+
+        labels = [f"{r.nombre} {r.apellido or ''}" for r in data]
+        valores_pedidos = [r.total_pedidos for r in data]
+        valores_gasto = [float(r.gasto_total or 0) for r in data]
+
+        return self.render_template(
+            "graficos/clientes.html",
+            labels=labels,
+            valores_pedidos=valores_pedidos,
+            valores_gasto=valores_gasto,
+        )
+
     @expose("/categorias/")
     @has_access
     def categorias(self):
