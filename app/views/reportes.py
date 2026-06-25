@@ -37,7 +37,7 @@ class ReportesView(BaseView):
             .all()
         )
 
-            ventas_mensuales = (
+        ventas_mensuales = (
             db.session.query(
                 func.date_format(Pedido.fecha, text("'%Y-%m'")).label("mes"),
             )
