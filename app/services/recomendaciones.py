@@ -1,8 +1,11 @@
+import logging
 from decimal import Decimal
 import json
 import os
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 """
 Servicio de recomendaciones con IA (Groq) + fallback a sistema experto.
@@ -15,7 +18,7 @@ del restaurante, analizando patrones en ventas, platos y clientes.
 # Configuración de Groq
 # ---------------------------------------------------------------------------
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")  # verifica tu modelo en la consola Groq
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-8b-8192")  # modelos válidos: llama3-8b-8192, llama3-70b-8192, llama-3.3-70b-versatile, mixtral-8x7b-32768
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
@@ -23,6 +26,10 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 # Helpers de Groq
 # ---------------------------------------------------------------------------
 def _llamar_groq(prompt: str, contexto: dict) -> list:
+    if not GROQ_API_KEY:
+        logger.warning("GROQ_API_KEY no está configurada — usando fallback a sistema experto")
+        return []
+
     try:
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -55,13 +62,20 @@ def _llamar_groq(prompt: str, contexto: dict) -> list:
             timeout=15,
         )
         if resp.status_code != 200:
+            logger.warning(
+                "Groq API respondió con status %s — usando fallback a sistema experto. Detalle: %s",
+                resp.status_code,
+                resp.text[:300],
+            )
             return []
+
         content = resp.json().get("choices", [{}])[0].get("message", {}).get("content", "")
         data = json.loads(content)
         recs = data.get("recomendaciones", [])
         if not isinstance(recs, list):
+            logger.warning("Groq devolvió formato inesperado — usando fallback a sistema experto")
             return []
-        # Normalizar campos mínimos
+
         normalizadas = []
         for r in recs:
             normalizadas.append({
@@ -70,8 +84,17 @@ def _llamar_groq(prompt: str, contexto: dict) -> list:
                 "texto": r.get("texto", ""),
                 "tipo": r.get("tipo", "info"),
             })
+        logger.info("Groq respondió con %d recomendaciones", len(normalizadas))
         return normalizadas
-    except Exception:
+
+    except requests.Timeout:
+        logger.warning("Timeout al llamar a Groq (15s) — usando fallback a sistema experto")
+        return []
+    except json.JSONDecodeError as e:
+        logger.warning("Error decodificando respuesta de Groq: %s — usando fallback", e)
+        return []
+    except Exception as e:
+        logger.error("Error inesperado llamando a Groq: %s — usando fallback a sistema experto", e, exc_info=True)
         return []
 
 
