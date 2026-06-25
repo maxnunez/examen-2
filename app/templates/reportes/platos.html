@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Platos más vendidos - {{ config.APP_NAME }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header bg-gradient-header mb-4">
+  <div class="container py-4">
+    <h1 class="h2 mb-1"><i class="bi bi-trophy me-2"></i>Platos más vendidos</h1>
+    <p class="text-muted mb-0">Top 20 platos más populares</p>
+  </div>
+</div>
+
+<div class="page-wrapper">
+  <div class="container pb-4">
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 datatable">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Plato</th>
+              <th>Categoría</th>
+              <th>Veces pedido</th>
+              <th>Unidades vendidas</th>
+              <th>Precio unit.</th>
+              <th>Ingreso total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in top_platos %}
+            <tr>
+              <td class="fw-bold text-muted">{{ loop.index }}</td>
+              <td class="fw-semibold">{{ p.plato }}</td>
+              <td><span class="badge bg-info-subtle text-info">{{ p.categoria }}</span></td>
+              <td>{{ p.veces_pedido }}</td>
+              <td>{{ p.total_vendidos }}</td>
+              <td>Bs {{ "%.2f"|format(p.precio) }}</td>
+              <td class="fw-semibold text-success">Bs {{ "%.2f"|format(p.ingreso_total) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted py-4">Sin datos de platos vendidos</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>$('.datatable').DataTable({pageLength:25, language:{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'}});</script>
+{% endblock %}
