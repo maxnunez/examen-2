@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Clientes Frecuentes - {{ config.APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-header bg-gradient-header mb-4">
+  <div class="container py-4">
+    <h1 class="h2 mb-1"><i class="bi bi-people me-2"></i>Clientes Frecuentes</h1>
+    <p class="text-muted mb-0">Top 10 clientes con más pedidos</p>
+  </div>
+</div>
+
+<div class="page-wrapper">
+  <div class="container pb-4">
+    <div class="row">
+      <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-bottom-0 pt-3">
+            <h5 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Pedidos por Cliente</h5>
+          </div>
+          <div class="card-body text-center">
+            <div class="chart-container">
+              <canvas id="chartPedidos"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-bottom-0 pt-3">
+            <h5 class="card-title mb-0"><i class="bi bi-currency-dollar me-2"></i>Gasto por Cliente</h5>
+          </div>
+          <div class="card-body text-center">
+            <div class="chart-container">
+              <canvas id="chartGasto"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const labels = {{ labels | tojson }};
+const valoresPedidos = {{ valores_pedidos | tojson }};
+const valoresGasto = {{ valores_gasto | tojson }};
+
+new Chart(document.getElementById('chartPedidos'), {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Pedidos realizados',
+      data: valoresPedidos,
+      backgroundColor: '#0dcaf0',
+      borderColor: '#0aa2c0',
+      borderWidth: 1,
+    }]
+  },
+  options: {
+    responsive: true,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: { stepSize: 1 }
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartGasto'), {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Gasto total (Bs)',
+      data: valoresGasto,
+      backgroundColor: '#198754',
+      borderColor: '#157347',
+      borderWidth: 1,
+    }]
+  },
+  options: {
+    responsive: true,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+      }
+    }
+  }
+});
+</script>
+{% endblock %}
